@@ -6,6 +6,7 @@ import random
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, screen_height, screen_width):
         super(Enemy, self).__init__()
+        self.type = "Enemy"
         self.SCREEN_WIDTH = screen_width
         self.SCREEN_HEIGHT = screen_height
         self.surf = pygame.image.load("./images/Asteroid6.png").convert_alpha()

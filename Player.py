@@ -12,14 +12,16 @@ from pygame.locals import (
 # Define a Player object by extending pygame.sprite.Sprite
 # The surface drawn on the screen is now an attribute of 'player'
 class Player(pygame.sprite.Sprite):
-    def __init__(self, screen_height, screen_width):
+    def __init__(self, screen_height, screen_width, lives):
         super(Player, self).__init__()
+        self.type = "PLAYER"
         self.surf = pygame.image.load("./images/spaceship.png").convert_alpha()
         self.surf = pygame.transform.scale(self.surf, (60, 60))
         self.surf.set_colorkey((255, 255, 255), RLEACCEL)
-        self.rect = self.surf.get_rect()
+        self.rect = self.surf.get_rect(center=(500, 650))
         self.SCREEN_WIDTH = screen_width
         self.SCREEN_HEIGHT = screen_height
+        self.lives = lives
 
     # Move the sprite based on user keypresses
     def update(self, pressed_keys):
@@ -41,3 +43,12 @@ class Player(pygame.sprite.Sprite):
             self.rect.top = 0
         if self.rect.bottom >= self.SCREEN_HEIGHT:
             self.rect.bottom = self.SCREEN_HEIGHT
+
+    def lose_life(self):
+        self.lives -= 1
+
+    def get_lives(self):
+        return self.lives
+
+    def is_dead(self):
+        return self.lives == 0

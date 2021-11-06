@@ -3,6 +3,8 @@
 # Import and initialize the pygame library
 import pygame
 
+pygame.font.init()
+
 from Player import Player
 from Enemy import Enemy
 
@@ -18,18 +20,22 @@ pygame.init()
 
 # Define constants for the screen width and height
 SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 800
+SCREEN_HEIGHT = 700
+
+LEVEL = 1
+LIVES = 5
+MAIN_FONT = pygame.font.SysFont("comicsans", 30)
 
 # Set up the drawing window
 screen = pygame.display.set_mode([SCREEN_WIDTH, SCREEN_HEIGHT])
-background = pygame.image.load("./images/background.jpg")
+BACKGROUND = pygame.image.load("./images/background.jpg")
 
 # Create a custom event for adding a new enemy
 ADDENEMY = pygame.USEREVENT + 1
 pygame.time.set_timer(ADDENEMY, 250)
 
 # Instantiate player. Right now, this is just a rectangle.
-player = Player(SCREEN_HEIGHT, SCREEN_WIDTH)
+player = Player(SCREEN_HEIGHT, SCREEN_WIDTH, LIVES)
 
 # Create groups to hold enemy sprites and all sprites
 # - enemies is used for collision detection and position updates
@@ -40,7 +46,22 @@ all_sprites.add(player)
 
 # Run until the user asks to quit
 running = True
+
+
+def draw_screen(screen):
+    screen.blit(BACKGROUND, (0, 0))
+    live_label = MAIN_FONT.render(f"Live: {LIVES}", True, (255, 255, 255))
+    level_label = MAIN_FONT.render(f"Live: {LEVEL}", True, (255, 255, 255))
+
+    screen.blit(live_label, (10, 10))
+    screen.blit(level_label, (SCREEN_WIDTH - level_label.get_width() - 10, 10))
+    pygame.display.update()
+
+
 while running:
+
+    # Setup the clock for a decent framerate
+    clock = pygame.time.Clock()
 
     # Look at every event in the queue
     for event in pygame.event.get():
@@ -70,22 +91,29 @@ while running:
 
     # Fill the background with white
     screen.fill((0, 0, 0))
-    screen.blit(background, (0, 0))
+    draw_screen(screen)
     # Draw all sprites
     for entity in all_sprites:
-        screen.blit(entity.surf, entity.rect) # NOTE: blit() puts the top-left corner of surf at the location given
+        screen.blit(entity.surf, entity.rect)  # NOTE: blit() puts the
+        # top-left corner of surf at the location given
 
+    # TODO: fix lose lives
     # Check if any enemies have collided with the player
     if pygame.sprite.spritecollideany(player, enemies):
-        # If so, then remove the player and stop the loop
-        player.kill()
-        running = False
+        player.lose_life()
+        print(player.get_lives())
+        if player.is_dead():
+            player.kill()
+            running = False
 
     # Draw a solid blue circle in the center
     # pygame.draw.circle(screen, (0, 0, 255), (250, 250), 75)
 
     # Flip the display
     pygame.display.flip()
+
+    # Ensure program maintains a rate of 30 frames per second
+    clock.tick(60)
 
 # Done! Time to quit.
 pygame.quit()
